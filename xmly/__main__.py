@@ -1,7 +1,5 @@
 import argparse
 from downloader import download
-import requests_cache
-requests_cache.install_cache('cache')
 
 def parse_args():
     parser = argparse.ArgumentParser(
