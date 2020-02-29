@@ -1,4 +1,5 @@
 from urllib.parse import urlparse
+from multiprocessing import Pool
 import os, math, logging, requests
 logging.basicConfig(format='[%(levelname)s] %(message)s', level=logging.INFO)
 
@@ -6,12 +7,12 @@ UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, 
 LIST_URL_TEMP = 'https://www.ximalaya.com/revision/album/v1/getTracksList?albumId={album_id}&pageNum={page}'
 TRACK_URL_TEMP = 'https://www.ximalaya.com/revision/play/v1/audio?id={track_id}&ptype=1'
 
-def download(url, output):
+def download(url, output, process_count = 10):
     album_id = parse_url(url)
     folder = create_folder(output)
     tracks = get_tracks(album_id)
-    for track in tracks:
-        download_audio(track, folder, tracks)
+    p = Pool(process_count)
+    p.starmap(download_audio, ((track, folder, tracks) for track in tracks))
 
 def download_audio(track, folder, tracks):
     url = get_audio_url(track, folder)
