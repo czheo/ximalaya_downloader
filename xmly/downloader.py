@@ -18,7 +18,13 @@ def download(url, output, process_count = 10):
         folder = create_folder(output)
         tracks = get_tracks(album_id)
         with Pool(process_count) as p:
-            p.starmap(download_audio, ((track, folder, tracks) for track in tracks))
+            res = p.starmap(download_audio, ((track, folder, tracks) for track in tracks))
+            logging.info('Total %d/%d succeeded.' % (len([0 for r in res if not r]), len(res)))
+            failed = [r for r in res if r]
+            if failed:
+                logging.info('Failed tracks:')
+                for r in failed:
+                    print(r)
     elif url_type == 'track':
         track_id = ids
         logging.info('Download track: ' + track_id)
@@ -53,6 +59,7 @@ def download_audio(track, folder, tracks = []):
             len(tracks),
             ))
         print(url, track)
+        return track
 
 def sizeof_fmt(num, suffix='B'):
     for unit in ['','K','M']:
